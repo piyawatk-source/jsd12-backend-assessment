@@ -52,3 +52,18 @@ DELETE http://localhost:3000/products/999
 
 ### Get all products to confirm changes
 GET http://localhost:3000/products
+
+### Filter products by name
+GET http://localhost:3000/products?name=key
+
+### Sort products by price (ascending)
+GET http://localhost:3000/products?sort=price
+
+### Sort products by price (descending)
+GET http://localhost:3000/products?sort=-price
+
+### Combine filter + sort
+GET http://localhost:3000/products?name=o&sort=-price
+
+### Test 404 handler (route that doesn't exist)
+GET http://localhost:3000/nonexistent

@@ -4,24 +4,39 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// in-memory database
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  next();
+});
+
 let products = [
   { id: "1", name: "Keyboard", price: 49.99, quantity: 1 },
   { id: "2", name: "Mouse", price: 19.99, quantity: 2 },
   { id: "3", name: "Monitor", price: 299.99, quantity: 1 },
 ];
 
-// Root route
 app.get("/", (req, res) => {
   res.send("Hello from my first Express server!");
 });
 
-// GET /products → คืน products ทั้งหมด
 app.get("/products", (req, res) => {
-  res.status(200).json(products);
+  let result = [...products];
+
+  if (req.query.name) {
+    const search = req.query.name.toLowerCase();
+    result = result.filter((p) => p.name.toLowerCase().includes(search));
+  }
+
+  if (req.query.sort === "price") {
+    result.sort((a, b) => a.price - b.price);
+  } else if (req.query.sort === "-price") {
+    result.sort((a, b) => b.price - a.price);
+  }
+
+  res.status(200).json(result);
 });
 
-// GET /products/:id → คืน product เดียว
 app.get("/products/:id", (req, res) => {
   const { id } = req.params;
   const product = products.find((p) => p.id === id);
@@ -33,7 +48,6 @@ app.get("/products/:id", (req, res) => {
   res.status(200).json(product);
 });
 
-// POST /products → สร้าง product ใหม่
 app.post("/products", (req, res) => {
   const { name, price, quantity } = req.body;
 
@@ -54,7 +68,6 @@ app.post("/products", (req, res) => {
   res.status(201).json(newProduct);
 });
 
-// PATCH /products/:id → แก้ไข product
 app.patch("/products/:id", (req, res) => {
   const { id } = req.params;
   const product = products.find((p) => p.id === id);
@@ -71,7 +84,6 @@ app.patch("/products/:id", (req, res) => {
   res.status(200).json(product);
 });
 
-// DELETE /products/:id → ลบ product
 app.delete("/products/:id", (req, res) => {
   const { id } = req.params;
   const index = products.findIndex((p) => p.id === id);
@@ -84,6 +96,18 @@ app.delete("/products/:id", (req, res) => {
   res.status(200).json({
     message: "Product deleted successfully",
     product: deletedProduct,
+  });
+});
+
+app.use((req, res, next) => {
+  res.status(404).json({ error: `Route ${req.method} ${req.url} not found` });
+});
+
+app.use((err, req, res, next) => {
+  console.error("Error:", err.stack);
+  res.status(500).json({
+    error: "Internal Server Error",
+    message: err.message,
   });
 });
 
