@@ -1,0 +1,54 @@
+### Test root route
+GET http://localhost:3000/
+
+### Get all products
+GET http://localhost:3000/products
+
+### Get one product (existing)
+GET http://localhost:3000/products/1
+
+### Get one product (not exist)
+GET http://localhost:3000/products/999
+
+### Create a new product
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "name": "Webcam",
+  "price": 79.99,
+  "quantity": 3
+}
+
+### Create with missing field (should fail with 400)
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "name": "Broken product"
+}
+
+### Update a product (PATCH)
+PATCH http://localhost:3000/products/1
+Content-Type: application/json
+
+{
+  "price": 59.99
+}
+
+### Update non-existent product (should fail with 404)
+PATCH http://localhost:3000/products/999
+Content-Type: application/json
+
+{
+  "price": 1
+}
+
+### Delete a product
+DELETE http://localhost:3000/products/2
+
+### Delete non-existent (should fail with 404)
+DELETE http://localhost:3000/products/999
+
+### Get all products to confirm changes
+GET http://localhost:3000/products
